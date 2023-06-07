@@ -1,12 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'profile.html' %}
 
-{% block title %} Увійти {% endblock %}
+{% block title %} Налаштування {% endblock %}
 
-{% block body %}
-<h1>Увійти</h1>
+{% block right_settings %}
+<form method="GET" enctype="multipart/form-data">
 
-<form method="GET">
-    {% csrf_token %}
     <style>
         .errorlist {
           display: none;
@@ -24,13 +22,9 @@
         <h2 style="color:crimson">{{msg}}</h2> 
     {% endfor %}
 
-
     {{ form.as_p }}
-
-    <button type="submit" class="btn btn-primary mb-2">Увійти</button>
+    <button type="submit" class="btn btn-primary mb-2">Оновити</button>
 </form>
 
-<h2>Немає акаунту?</h2>
-<a href="/sign-up">Зарегеструватися</a>
-
 {% endblock %}
+       

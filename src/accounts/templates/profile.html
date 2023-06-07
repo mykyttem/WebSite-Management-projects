@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %} Мій профіль {% endblock %}
+
+{% block link %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/profile.css'%}">
+{% endblock %}
+
+{% block body %}
+{% for user in user_account %}
+    <script>
+        function tabs(tabIndex) {
+            window.location.href = './settings';
+          }          
+    </script>
+
+    <div class="container">
+        <div class="profile-header">
+        <div class="profile-img">
+            <img src="/media/{{ user.avatar }}" width="200" alt="Profile Image">
+        </div>
+        <div class="profile-nav-info">
+            <h3 class="user-name">{{ user.name }}</h3>
+            <h3 class="user-name">@{{ user.login }}</h3>
+        </div>
+        </div>
+    
+        <div class="main-bd">
+        <div class="left-side">
+            <div class="profile-side">
+            <p class="user-mail"><i class="fa fa-envelope"></i> {{ user.email }} </p>
+            <div class="user-bio">
+                <h3>Біографія</h3>
+                <p class="bio">
+                біографія текст текст текст текст
+                </p>
+            </div>
+            <div class="profile-btn">
+                <button class="chatbtn" id="chatBtn"><i class="fa fa-comment"></i>Чати</button>
+                <button class="createbtn" id="Create-post"><i class="fa fa-plus"></i>Створити</button>
+                <form action="/sign-in" method="POST">
+                    {% csrf_token %}
+                    <input name="logout">
+                    <button class="createbtn" id="Create-post"><i class="fa fa-plus"></i>Вийти</button>
+                </form>
+            </div>
+            </div>
+        </div>
+        <div class="right-side">
+            <div class="nav">
+                <ul>
+                    <li onclick="tabs(0)" class="user-post active">Проекти</li>
+                    <li onclick="tabs(2)" class="user-setting">Налаштування</li>
+                </ul>
+            </div>
+
+        
+            <div class="profile-body">
+                <div class="profile-settings tab">
+                    <div class="account-setting">
+                        {% block right_settings %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endfor %}
+{% endblock %}
