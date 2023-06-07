@@ -1,15 +1,18 @@
 {% extends 'profile.html' %}
 
-{% block title %} Налаштування {% endblock %}
+{% block title %} Створити проект {% endblock %}
 
 {% block right_block %}
-<form method="GET" enctype="multipart/form-data">   
+<form method="POST">
+    {% csrf_token %}  
+
     {% for msg in messages %}
         <h2 style="color:crimson">{{msg}}</h2> 
     {% endfor %}
 
     {{ form.as_p }}
-    <button type="submit" class="btn btn-primary mb-2">Оновити</button>
+
+    <button type="submit" class="btn btn-primary mb-2">Створити</button>
 </form>
 
 {% endblock %}

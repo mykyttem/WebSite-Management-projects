@@ -2,24 +2,11 @@
 
 {% block title %} Зареєструватися {% endblock %}
 
-
 {% block body %}
 <h1>Зареєструватися</h1>
 
 <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <style>
-        .errorlist {
-          display: none;
-        }
-    </style>
-
-    <script>
-        var element = document.querySelector('.errorlist');
-        if (element) {
-          element.remove();
-        }
-    </script>        
+    {% csrf_token %}       
 
     {% for msg in messages %}
         <h2 style="color:crimson">{{msg}}</h2> 
@@ -27,10 +14,9 @@
 
     {{ form.as_p }}
 
-    <button type="submit" class="btn btn-primary mb-2">Зарегеструватися</button>
+    <button type="submit" class="btn btn-primary mb-2">Зареєструватися</button>
 
-    <hr>
-    
+    <hr>    
 </form>
 
 <h2>Вже зареєстрований?</h2>

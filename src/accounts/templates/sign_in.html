@@ -6,24 +6,11 @@
 <h1>Увійти</h1>
 
 <form method="GET">
-    {% csrf_token %}
-    <style>
-        .errorlist {
-          display: none;
-        }
-    </style>
-
-    <script>
-        var element = document.querySelector('.errorlist');
-        if (element) {
-          element.remove();
-        }
-    </script>        
+    {% csrf_token %}     
 
     {% for msg in messages %}
         <h2 style="color:crimson">{{msg}}</h2> 
     {% endfor %}
-
 
     {{ form.as_p }}
 

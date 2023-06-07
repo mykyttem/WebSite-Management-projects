@@ -10,8 +10,12 @@
 {% block body %}
 {% for user in user_account %}
     <script>
-        function tabs(tabIndex) {
+        function settings(tabIndex) {
             window.location.href = './settings';
+          }          
+
+        function tabs_project(tabIndex) {
+            window.location.href = './projects';
           }          
     </script>
 
@@ -30,18 +34,13 @@
         <div class="left-side">
             <div class="profile-side">
             <p class="user-mail"><i class="fa fa-envelope"></i> {{ user.email }} </p>
-            <div class="user-bio">
-                <h3>Біографія</h3>
-                <p class="bio">
-                біографія текст текст текст текст
-                </p>
-            </div>
+         
             <div class="profile-btn">
                 <button class="chatbtn" id="chatBtn"><i class="fa fa-comment"></i>Чати</button>
-                <button class="createbtn" id="Create-post"><i class="fa fa-plus"></i>Створити</button>
+                <button class="createbtn" id="Create-post"><i class="fa fa-plus"></i><a href="create-project" style="color:aliceblue">Створити</button></a>
                 <form action="/sign-in" method="POST">
                     {% csrf_token %}
-                    <input name="logout">
+                    <input name="logout" type="hidden">
                     <button class="createbtn" id="Create-post"><i class="fa fa-plus"></i>Вийти</button>
                 </form>
             </div>
@@ -50,16 +49,15 @@
         <div class="right-side">
             <div class="nav">
                 <ul>
-                    <li onclick="tabs(0)" class="user-post active">Проекти</li>
-                    <li onclick="tabs(2)" class="user-setting">Налаштування</li>
+                    <li onclick="tabs_project()" class="user-post active">Проекти</li>
+                    <li onclick="settings()" class="user-setting">Налаштування</li>
                 </ul>
             </div>
 
-        
             <div class="profile-body">
                 <div class="profile-settings tab">
                     <div class="account-setting">
-                        {% block right_settings %}{% endblock %}
+                        {% block right_block %}{% endblock %}
                     </div>
                 </div>
             </div>

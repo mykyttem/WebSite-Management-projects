@@ -10,6 +10,17 @@
     {% block link %}{% endblock %}
 </head>
 <body>
+    <style>
+        .errorlist {
+          display: none;
+        }
+    </style>
+    <script>
+        var element = document.querySelector('.errorlist');
+        if (element) {
+          element.remove();
+        }
+    </script>     
     {% block body %}{% endblock %}
 </body>
 </html>

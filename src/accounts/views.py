@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
 
-from .forms import AccountsForm_SignUp, AccountsForm_SignIn, UpdateAccount
-from .models import Accounts
+from .forms import AccountsForm_SignUp, AccountsForm_SignIn, UpdateAccount, CreateProjects
+from .models import Accounts, Projects
 
 def auth_user(f):
     def wrapper(request, *args, **kwargs):
@@ -17,7 +17,7 @@ def auth_user(f):
     return wrapper
 
 
-#FIXME: don't save photo user
+#FIXME: don't save photo user   
 def sign_up(request):
     """
     Get data for fields
@@ -89,9 +89,8 @@ def my_profile(request, user_account, login):
         # get hidden element
         request.session.flush()
         return redirect('/sign-in')
-    
 
-    return render(request, 'profile.html', {'user_account': user_account})
+    return render(request, 'profile.html')
 
 
 #FIXME: don't save photo user
@@ -124,4 +123,29 @@ def settings(request, user_account, login):
                 return redirect('/sign-in')
 
 
-    return render(request, 'settings.html', {'user_account': user_account, 'form': form})
+    return render(request, 'settings.html', {'form': form})
+
+
+@auth_user
+def create_project(request, accounts_users, login):
+    form = CreateProjects(request.POST)
+  
+    if request.method == 'POST':
+        if form.is_valid():
+
+            for user in accounts_users:  
+                project = form.save(commit=False)
+                project.author = user['login']
+
+                form.save()
+
+            return redirect('.')
+  
+    return render(request, 'create_project.html', {'form': form}) 
+
+
+@auth_user
+def projects(request, accounts_users, login):
+    project_user = Projects.objects.filter(author=login).values()
+
+    return render(request, 'projects.html', {'project_user': project_user}) 
