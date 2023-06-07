@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %} Увійти {% endblock %}
+
+{% block link %}
+    {% load static %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+{% endblock %}
+
+{% block body %}
+<h1>Увійти</h1>
+
+<form method="GET">
+    {% csrf_token %}
+    <style>
+        .errorlist {
+          display: none;
+        }
+    </style>
+
+    <script>
+        var element = document.querySelector('.errorlist');
+        if (element) {
+          element.remove();
+        }
+    </script>        
+
+    {% for msg in messages %}
+        <h2 style="color:crimson">{{msg}}</h2> 
+    {% endfor %}
+
+
+    {{ form.as_p }}
+
+    <button type="submit" class="btn btn-primary mb-2">Увійти</button>
+</form>
+
+<h2>Немає акаунту?</h2>
+<a href="/sign-up">Зарегеструватися</a>
+
+{% endblock %}
