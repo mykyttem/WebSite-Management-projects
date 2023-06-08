@@ -1,0 +1,28 @@
+{% extends 'project.html' %}
+
+{% block title %} Команда {{ title }} {% endblock %}
+
+{% block down_block %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Логін</th>
+            <th scope="col">Тип</th>
+            <th scope="col">Виконує завдання</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in members %}
+        <tr>
+            <th scope="row">1</th>
+            <td>{{m.login_member}}</td>
+            <td><span class="badge badge-pill badge-primary">{{m.type}}</span></td>
+            <td><a href="./task/" class="btn btn-link btn-sm">{{m.id_task}}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

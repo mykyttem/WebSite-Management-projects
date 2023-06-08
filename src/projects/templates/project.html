@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %} Проект {{ title }} {% endblock %}
+
+{% block body %}
+
+<style>
+    body {
+        background-color: #e9ebee99;
+    }
+    
+    .spacer {
+        height: 1em;
+    }
+</style>
+
+<br><br>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div style="height: 2em"></div>
+            <div class="card">
+                <div class="card-header">
+                    {% for p in info_project %}
+                    <h4 style="text-align:right">{{ p.status }}</h4>
+                    <h5>Проект "{{ title }}"</h5>
+                    <ul class="nav nav-tabs card-header-tabs"> 
+                        <li class="nav-item">
+                            <a class="nav-link active" id="stat-1-tab" href="/project/{{ id }}/{{ title }}">Статистика</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"id="task-1-tab" href="/project/{{ id }}/{{ title }}/tasks">Завдання</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"id="team-1-tab" href="/project/{{ id }}/{{ title }}/team">Команда <span class="badge badge-pill badge-success">{{ p.team_members.split|length }}</span></a>
+                        </li>
+                       
+                            {% for user in accounts_users %}
+                                {% if user.login == p.author or user.login in p.access.split %}
+                                <li class="nav-item">
+                                    <a class="nav-link"id="team-1-tab" href="/project/{{ id }}/{{ title }}/project-settings">Налаштування</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                    </ul>
+                </div>
+               
+                <div class="card-body">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <table class="table table-bordered table-striped">
+                                                <thead> 
+                                                    <tr class="table">
+                                                        <th scope="col">Сьогоднішня дата</td>
+                                                        <th scope="col">Крайний термін</td>
+                                                        <th scope="col">Часу залишилося</td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td> {{ date_now }} </td>
+                                                        <td> {{ p.deadline }} </td>
+                                                        <td> {{ days_between_date }} днів</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+        
+                                    <div class="spacer"></div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label>Відсоток завершення :</label>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    {% endfor %}
+                    {% block down_block %}{% endblock %}
+                </div>
+        </div> 
+    </div>
+</div>
+
+{% endblock %}

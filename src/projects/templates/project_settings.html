@@ -1,0 +1,24 @@
+{% extends 'project.html' %}
+
+{% block title %} Налаштування {{ title }} {% endblock %}
+
+{% block down_block %}
+<br>
+
+
+<h3 style="text-align: center;">Основні налаштування</h3>
+<form method="POST">
+
+    {% csrf_token %}  
+
+    {% for msg in messages %}
+        <h2 style="color:crimson">{{msg}}</h2> 
+    {% endfor %}
+
+    {{ form.as_p }}
+
+
+    <button type="submit" class="btn btn-primary mb-2">Створити</button>
+</form>
+
+{% endblock %}

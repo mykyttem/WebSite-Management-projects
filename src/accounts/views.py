@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
 
-from .forms import AccountsForm_SignUp, AccountsForm_SignIn, UpdateAccount, CreateProjects
-from .models import Accounts, Projects
+from .forms import AccountsForm_SignUp, AccountsForm_SignIn, UpdateAccount
+from .models import Accounts
 
 def auth_user(f):
     def wrapper(request, *args, **kwargs):
@@ -124,28 +124,3 @@ def settings(request, user_account, login):
 
 
     return render(request, 'settings.html', {'form': form})
-
-
-@auth_user
-def create_project(request, accounts_users, login):
-    form = CreateProjects(request.POST)
-  
-    if request.method == 'POST':
-        if form.is_valid():
-
-            for user in accounts_users:  
-                project = form.save(commit=False)
-                project.author = user['login']
-
-                form.save()
-
-            return redirect('.')
-  
-    return render(request, 'create_project.html', {'form': form}) 
-
-
-@auth_user
-def projects(request, accounts_users, login):
-    project_user = Projects.objects.filter(author=login).values()
-
-    return render(request, 'projects.html', {'project_user': project_user}) 
