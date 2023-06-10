@@ -4,6 +4,29 @@
 
 {% block down_block %}
 
+<style>
+    .modal-add-member {
+        display: none;
+        position: fixed; 
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4); 
+        }
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        }
+    </style>
+
+<br>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -11,18 +34,74 @@
             <th scope="col">Логін</th>
             <th scope="col">Тип</th>
             <th scope="col">Виконує завдання</th>
+
+            {% for p in info_project %}
+                {% for user in accounts_users %}
+                    {% if user.login == p.author or user.login in p.access.split %}
+                        <th scope="col">Дії</th>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
         </tr>
     </thead>
     <tbody>
+        <button style="float: right;" id="btn-add-member">Добавити</button>
+
+        <!-- Modal content add member -->
+        <div id="modal-add-member" class="modal-add-member">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+
+                <form method="POST">
+                    {% csrf_token %}  
+
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary mb-2">Добавити</button>
+                </form>
+            </div>
+        </div>
+
+        <br><br>
         {% for m in members %}
         <tr>
-            <th scope="row">1</th>
+            <th scope="row">{{m.id}}</th>
             <td>{{m.login_member}}</td>
             <td><span class="badge badge-pill badge-primary">{{m.type}}</span></td>
             <td><a href="./task/" class="btn btn-link btn-sm">{{m.id_task}}</a></td>
+
+            {% for p in info_project %}
+                {% for user in accounts_users %}
+                    {% if user.login == p.author or user.login in p.access.split %}
+                        <form method="GET">
+                            <input name="id_member_delete" type="hidden" value="{{ m.id }}">
+                            <td><button class="btn btn-danger btn-xs"><i class="bi bi-trash"></i></button></td>
+                        </form>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+    var modal_add_member = document.getElementById("modal-add-member");
+    var btn_add_member = document.getElementById("btn-add-member"); 
+    var span = document.getElementsByClassName("close")[0]; 
+    
+    btn_add_member.onclick = function() {
+        modal_add_member.style.display = "block";
+    }
+    
+    span.onclick = function() {
+        modal_add_member.style.display = "none"; 
+    }
+    
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal_add_member.style.display = "none";
+        }
+    }
+</script>
 
 {% endblock %}

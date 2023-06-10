@@ -1,0 +1,25 @@
+{% extends 'project.html' %}
+{% block title %} Подробніше о завданні {% endblock %}
+
+{% block down_block %}
+{% for t in d_task %}
+    <h1 style="text-align: center">{{ t.title }} </h1><br>
+
+    <h3 style="text-align: center">Опис завдання</h3>
+
+    <h4 style="text-align: center"> {{ t.description }} </h4>
+
+    <h3>Хто виконує - {{ t.perform }}</h3>
+    <br>
+
+    <h3>Коли закінчити</h3>
+    
+    {{ t.end_date }}
+    <br>
+    
+    <h3>Статус</h3>
+    {{ t.status }}
+
+{% endfor %}
+
+{% endblock %}

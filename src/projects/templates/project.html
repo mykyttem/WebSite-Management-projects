@@ -28,20 +28,22 @@
                         <li class="nav-item">
                             <a class="nav-link active" id="stat-1-tab" href="/project/{{ id }}/{{ title }}">Статистика</a>
                         </li>
+        
                         <li class="nav-item">
-                            <a class="nav-link"id="task-1-tab" href="/project/{{ id }}/{{ title }}/tasks">Завдання</a>
+                            <a class="nav-link"id="task-1-tab" href="/project/{{ id }}/{{ title }}/tasks">Завдання <span class="badge badge-pill badge-success">{{ tasks|length }}</span></a>   
                         </li>
+                    
                         <li class="nav-item">
                             <a class="nav-link"id="team-1-tab" href="/project/{{ id }}/{{ title }}/team">Команда <span class="badge badge-pill badge-success">{{ p.team_members.split|length }}</span></a>
                         </li>
                        
-                            {% for user in accounts_users %}
-                                {% if user.login == p.author or user.login in p.access.split %}
-                                <li class="nav-item">
-                                    <a class="nav-link"id="team-1-tab" href="/project/{{ id }}/{{ title }}/project-settings">Налаштування</a>
-                                </li>
-                                {% endif %}
-                            {% endfor %}
+                        {% for user in accounts_users %}
+                            {% if user.login == p.author or user.login in p.access.split %}
+                            <li class="nav-item">
+                                <a class="nav-link"id="team-1-tab" href="/project/{{ id }}/{{ title }}/project-settings">Налаштування</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
                     </ul>
                 </div>
                

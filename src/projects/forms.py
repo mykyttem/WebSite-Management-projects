@@ -1,5 +1,5 @@
 from django import forms
-from .models import Projects, Tasks_Projects
+from .models import Projects, Tasks_Projects, MembersProject
 
 class CreateProjects(forms.ModelForm):
     class Meta:
@@ -61,11 +61,36 @@ class SettingsProject(forms.ModelForm):
 class TaskProjects(forms.ModelForm):
     class Meta:
         model = Tasks_Projects
-        fields = "__all__"
+        fields = ['title', 'description', 'perform', 'end_date', 'status']
 
         labels = {
             'title': "Назва задачи",
             'description': 'Опис задачи',
             'perform': "Хто виконує (по стандарту 'всі')",
+            'status': 'Статус завдання',
             'end_date': 'Коли закінчити задачу'
+        }
+
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Назва завдання"}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Опишіть завдання'}),
+            'perform': forms.Select(attrs={'class': 'form-control'}, choices=[('Я', 'Я')]),
+            'status': forms.Select(attrs={'class': 'form-control'}, choices=[('В розробці', 'В розробці'), ('Виконано', 'Виконано')]),
+            'end_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
+
+
+class addMember(forms.ModelForm):
+    class Meta:
+        model = MembersProject
+        fields = ['login_member', 'type']
+
+        labels = {
+            'login_member': "Логін учасника",
+            'type': 'Яку роль виконує'
+        }
+
+        widgets = {
+            'login_member': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Ведіть логін учасника"}),
+            'type': forms.Select(attrs={'class': 'form-control'}, choices=[('Адміністратор', 'Адміністратор'), ('Учасник', 'Учасник')])
         }

@@ -4,6 +4,30 @@
 
 {% block down_block %}
 
+<style>
+.modal-add-task {
+    display: none;
+    position: fixed; 
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4); 
+    }
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    }
+</style>
+
+
+<br>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -11,17 +35,72 @@
             <th scope="col">Назва</th>
             <th scope="col">Опис</th>
             <th scope="col">Статус</th>
-            <th scope="col">Дії</th>
+            
+            {% for p in info_project %}
+                {% for user in accounts_users %}
+                    {% if user.login == p.author or user.login in p.access.split %}
+                        <th scope="col">Дії</th>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
         </tr>
     </thead>
     <tbody>
+        <button style="float: right;" id="btn-add-task">Добавити</button>
+
+        <!-- Modal content add task -->
+        <div id="modal-add-task" class="modal-add-task">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+
+                <form method="POST">
+                    {% csrf_token %}  
+
+                    {{ form.as_p }}
+
+                    <button type="submit" class="btn btn-primary mb-2">Створити</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            var modal_add_task = document.getElementById("modal-add-task");
+            var btn_add_task = document.getElementById("btn-add-task"); 
+            var span = document.getElementsByClassName("close")[0]; 
+            
+            btn_add_task.onclick = function() {
+                modal_add_task.style.display = "block";
+            }
+            
+            span.onclick = function() {
+                modal_add_task.style.display = "none"; 
+            }
+            
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal_add_task.style.display = "none";
+                }
+            }
+        </script>
+
+        <br><br>
         {% for t in tasks %}
         <tr>
-            <th scope="row">1</th>
+            <th scope="row">{{t.id}}</th>
             <td>{{t.title}}</td>
-            <td>{{t.description}}</td>
+            <td><a href="./task/{{t.id}}/details" class="btn btn-link btn-sm">Подробніше</a></td>
             <td><span class="badge badge-pill badge-success">{{t.status}}</span></td>
-            <td><button class="btn btn-link btn-sm">Delete</button></td>
+
+            {% for p in info_project %}
+                {% for user in accounts_users %}
+                    {% if user.login == p.author or user.login in p.access.split %}
+                        <form method="GET">
+                            <input name="id_task_delete" type="hidden" value="{{ t.id }}">
+                            <td><button class="btn btn-danger btn-xs"><i class="bi bi-trash"></i></button></td>
+                        </form>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
         </tr>
         {% endfor %}
     </tbody>
