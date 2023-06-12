@@ -12,7 +12,38 @@
     .spacer {
         height: 1em;
     }
+   
+    #chat-team {
+      border: 0;
+      padding: 10px;
+      width: 100%;
+      border-radius: 3px;
+      background: #e40046;
+      color: #fff;
+      font-family: "Bree Serif";
+      font-size: 1rem;
+      margin: 5px 2px;
+      cursor: pointer;
+      outline: none;
+      margin-bottom: 10px;
+      transition: background 0.3s ease-in-out;
+      box-shadow: 0px 5px 7px 0px rgba(0, 0, 0, 0.3);
+    }
+    
+    #chat-team {
+      background: rgba(288, 0, 70, 0.9);
+    }
+    
+    #chat-team i {
+      margin-right: 5px;
+    }
 </style>
+
+<script>
+function chatURL(tabIndex) {
+    window.location.href = './{{title}}/chat-team/{{ id }}'
+}
+</script>
 
 <br><br>
 <div class="container">
@@ -44,6 +75,8 @@
                             </li>
                             {% endif %}
                         {% endfor %}
+
+                        <button class="chat-team" id="chat-team" onclick="chatURL()">Чат команди</button>
                     </ul>
                 </div>
                

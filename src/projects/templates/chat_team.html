@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %} Чат {% endblock %}
+
+{% block link %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/chat_team.css'%}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block body %} 
+<div class="container">
+	<div class="row no-gutters">
+	  <div class="col-md-4 border-right">
+		<div class="settings-tray">
+		  <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/filip.jpg" alt="Profile img">
+          <h3>{{user_login}}</h3>
+		</div>
+		<div class="search-box">
+		  <div class="input-wrapper">
+			<i class="material-icons">Пошук</i>
+			<input placeholder="Ведіть назву чату, або логін учасника" type="text">
+		  </div>
+		</div>
+
+		<div class="friend-drawer friend-drawer--onhover">
+		  <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/rachel.jpeg" alt="">
+		  <div class="text">
+			<h6>Ana</h6>
+			<p class="text-muted">Hi, wanna see something?</p>
+		  </div>
+		  <span class="time text-muted small">13:21</span>
+		</div>
+	  </div>
+      
+	  <div class="col-md-8">
+		<div class="settings-tray">
+			<div class="friend-drawer no-gutters friend-drawer--grey">
+			<img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/robocop.jpg" alt="">
+			<div class="text">
+			  <h6>Robo Cop</h6>
+			  <p class="text-muted">Layin' down the law since like before Christ...</p>
+			</div>
+		  </div>
+		</div>
+		<div class="chat-panel" id="chat-log">
+        
+          {% for msg in messages %}
+            {% if msg.login_author != user_login %}
+                <div class="row no-gutters">
+                    <div class="col-md-3">    
+                        <div class="chat-bubble chat-bubble--left">
+                            <p>{{msg.message}}</p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="row no-gutters">
+                    <div class="col-md-3 offset-md-9">
+                        <div class="chat-bubble chat-bubble--right">
+                            <p>{{msg.message}}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+          {% endfor %}
+		  <div class="row">
+			<div class="col-12">
+			  <div class="chat-box-tray">
+                <i class="bi bi-emoji-laughing-fill"></i>
+				<input id="chat-message-input" type="text" size="100" placeholder="Ведіть ваше повідомлення..."><br>
+               
+                <i class="bi bi-cursor-fill">
+                    <input id="chat-message-submit" type="button">
+                </i>
+
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	</div>
+  </div>
+
+
+{{ room_name|json_script:"room-name" }}
+<script>
+    const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+    // url
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chat/'
+        + roomName
+        + '/'
+    );
+
+    // send message
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const login_user = data.login_user; 
+        const login_session = "{{ user_login }}";
+    
+        var col_md_3 = document.createElement('div');
+        var msg = document.createElement('div');
+    
+        tagP = document.createElement('h4');
+    
+        if (login_user !== login_session) {
+            col_md_3.className = 'col-md-3';
+            msg.className = 'chat-bubble chat-bubble--left';
+        } else {
+            col_md_3.className = 'col-md-3 offset-md-9';
+            msg.className = 'chat-bubble chat-bubble--right';
+        }
+    
+        tagP.textContent = data.message;
+        msg.appendChild(tagP);
+        col_md_3.appendChild(msg);
+        document.querySelector('#chat-log .row.no-gutters').appendChild(col_md_3);
+    };
+    
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('#chat-message-input').focus();
+    document.querySelector('#chat-message-input').onkeyup = function(e) {
+        if (e.keyCode === 13) {  // enter, return
+            document.querySelector('#chat-message-submit').click();
+        }
+    };
+
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+
+        messageInputDom.value = '';
+    };
+</script>
+
+{% endblock %}

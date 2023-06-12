@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect
 
 from datetime import datetime
 
-from .models import Projects, MembersProject, Tasks_Projects, MembersProject
+from .models import Projects, MembersProject, Tasks_Projects, MembersProject, MessagesChatTeam
 from .forms import CreateProjects, SettingsProject, TaskProjects, addMember
 from accounts.views import auth_user
 
 date_now = datetime.now()
 
+#TODO: REFACTORING | DELETE GLOBALS VARIABLE, ADDED CLASSES
 info_project = None
 tasks_value = None
 days_between_date = None
@@ -37,6 +38,7 @@ def projects(request, accounts_users, login):
     return render(request, 'projects.html', {'project_user': project_user}) 
 
 
+#TODO: Invite for project, delete from project, other
 @auth_user
 def project(request, accounts_users, id, title):
     global info_project
@@ -174,4 +176,19 @@ def team(request, accounts_users, id, title):
                 'accounts_users': accounts_users, 'info_project': info_project,
                 'members': members, 'tasks': tasks_value, 'days_between_date': days_between_date,
                 'form': form
+    })
+
+
+#TODO: read and write chat, only members project, more options
+#FIXME: HTML - reverse
+@auth_user
+def chat_team(request, accounts_users, id, title, room_name):
+    user_login = request.session.get('user-login')
+
+    messages = MessagesChatTeam.objects.filter(chat_id=id).values()
+
+
+    return render(request, 'chat_team.html', {
+        "room_name": room_name, 'user_login': user_login,
+        'messages': messages
     })

@@ -27,3 +27,15 @@ class MembersProject(models.Model):
     login_member = models.CharField(max_length=25)
     type = models.CharField(max_length=25)
     id_task = models.CharField(max_length=25)
+
+
+class ChatTeam(models.Model):
+    id_project = models.IntegerField()
+
+
+class MessagesChatTeam(models.Model):
+    chat_id = models.IntegerField()
+    login_author = models.CharField(max_length=15)
+
+    message = models.TextField()
+    time_message = models.DateTimeField(auto_now_add=True)

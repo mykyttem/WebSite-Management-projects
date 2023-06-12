@@ -14,5 +14,7 @@ urlpatterns = [
     path('project/<int:id>/<str:title>/task/<int:id_task>/details', views.details_task, name='details_task'),
     path('project/<int:id>/<str:title>/team', views.team, name='team'),
 
+    path('project/<int:id>/<str:title>/chat-team/<int:room_name>', views.chat_team, name='room'),
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
