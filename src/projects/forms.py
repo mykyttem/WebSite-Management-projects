@@ -5,11 +5,10 @@ class CreateProjects(forms.ModelForm):
     class Meta:
    
         model = Projects
-        fields = ['title', 'deadline', 'team_members', 'access']
+        fields = ['title', 'deadline', 'access']
 
         labels = {
             'title': "Назва проекту",
-            'team_members': 'Учасники',
             'access': 'Хто має доступ керування проектом',
             'deadline': 'Крайний термін'
         }
@@ -17,7 +16,6 @@ class CreateProjects(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Ведіть назву проекту"}),
             'deadline': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'team_members': forms.Select(attrs={'class': 'form-control'}, choices=[('Я', 'Я')]),
             'access': forms.Select(attrs={'class': 'form-control'}, choices=[('Я', 'Я')]),
         }
 
@@ -39,11 +37,10 @@ class SettingsProject(forms.ModelForm):
 
     class Meta:
         model = Projects
-        fields = ['title', 'deadline', 'team_members', 'access', 'status']
+        fields = ['title', 'deadline', 'access', 'status']
 
         labels = {
             'title': "Назва проекту",
-            'team_members': 'Учасники',
             'status': 'Статус',
             'access': 'Хто має доступ керування проектом',
             'deadline': 'Крайний термін'
@@ -52,7 +49,6 @@ class SettingsProject(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Змінити назву проекту"}),
             'deadline': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'team_members': forms.Select(attrs={'class': 'form-control'}, choices=[('Я', 'Я')]),
             'status': forms.Select(attrs={'class': 'form-control'}, choices=[('В розробці', 'В розробці'), ('Завершено', 'Завершено')]),
             'access': forms.Select(attrs={'class': 'form-control'}, choices=[('Я', 'Я')])
         }

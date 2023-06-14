@@ -7,7 +7,9 @@ from . import views
 urlpatterns = [    
     path('my-profile/<str:login>/create-project', views.create_project, name='create_project'),
     path('my-profile/<str:login>/projects', views.projects, name='projects'),
+    path('invite-member/project-<str:title>/author-project-<str:author>', views.inviteURL_member, name='invite-member'),
     
+    # info for project
     path('project/<int:id>/<str:title>', views.project, name='project'),
     path('project/<int:id>/<str:title>/project-settings', views.project_settings, name='project_settings'),
     path('project/<int:id>/<str:title>/tasks', views.tasks, name='tasks'),
