@@ -24,6 +24,7 @@ def checkMember_project(f):
         # info for project
         info_project = Projects.objects.filter(id=id).values()
         tasks_value = Tasks_Projects.objects.filter(id_project=id).values()
+        members = MembersProject.objects.filter(id_project=id).values()
 
         # checking user in project members
         for user in accounts_users:
@@ -39,7 +40,7 @@ def checkMember_project(f):
                     return redirect(f'/my-profile/{login_user}')
                 
 
-            return f(request, accounts_users, id, info_project, tasks_value, *args, **kwargs)
+            return f(request, accounts_users, id, info_project, tasks_value, members, *args, **kwargs)
     return checkingUser_project
         
 
@@ -47,6 +48,7 @@ date_now = datetime.now()
 days_between_date = None
 
 #FIXME URLS For login
+#FIXME: save my logo
 @auth_user
 def create_project(request, accounts_users, login):
     form = CreateProjects(request.POST)
@@ -72,16 +74,16 @@ def create_project(request, accounts_users, login):
 #FIXME URLS For login
 @auth_user
 def projects(request, accounts_users, login):
-    """ Geting projects, member in projects or author project  """
+    """ Geting projects, member in projects or author project """
 
     members_projects = MembersProject.objects.filter(login_member=login).values('id_project')
     project_user = Projects.objects.filter(Q(author=login) or Q(id__contains=members_projects)).values()
 
-    return render(request, 'projects.html', {'project_user': project_user}) 
+    return render(request, 'projects.html', {'project_user': project_user, 'members_projects': members_projects}) 
 
 
 @checkMember_project
-def project(request, accounts_users, id, info_project, tasks_value, title):
+def project(request, accounts_users, id, info_project, tasks_value, members, title):
     global days_between_date
 
 
@@ -99,6 +101,7 @@ def project(request, accounts_users, id, info_project, tasks_value, title):
                 {'accounts_users': accounts_users, 'tasks': tasks_value,
                 'title': title, 'id': id, 'info_project': info_project, 
                 'date_now': date_now, 'days_between_date': days_between_date,
+                'members': members
     })
 
 
@@ -118,7 +121,7 @@ def inviteURL_member(request, accounts_users, title, author):
         
 
 @checkMember_project
-def project_settings(request, accounts_users, id, info_project, tasks_value,  title):
+def project_settings(request, accounts_users, id, info_project, tasks_value, members, title):
     """
     Project settings
     Current data passing in file "forms" class - SettingsProject
@@ -146,13 +149,16 @@ def project_settings(request, accounts_users, id, info_project, tasks_value,  ti
 
 
     return render(request, 'project_settings.html', 
-                {'id': id, 'title': title, 'form': form, 
-                'date_now': date_now, 'info_project': info_project,
-                'tasks': tasks_value, 'days_between_date': days_between_date})
+                {
+                    'id': id, 'title': title, 'form': form, 
+                    'date_now': date_now, 'info_project': info_project,
+                    'tasks': tasks_value, 'days_between_date': days_between_date,
+                    'members': members
+                })
 
 
 @checkMember_project
-def tasks(request, accounts_users, id, info_project, tasks_value, title):
+def tasks(request, accounts_users, id, info_project, tasks_value, members, title):
     """  
     Create task
     List tasks
@@ -183,12 +189,13 @@ def tasks(request, accounts_users, id, info_project, tasks_value, title):
                 {'id': id, 'title': title, 
                 'date_now': date_now, 'accounts_users': accounts_users,
                 'info_project': info_project, 'tasks': tasks_value,
-                'form': form, 'days_between_date': days_between_date
+                'form': form, 'days_between_date': days_between_date,
+                'members': members
     })
 
 
 @checkMember_project
-def details_task(request, accounts_users, id, title, info_project, tasks_value, id_task):
+def details_task(request, accounts_users, id, title, info_project, tasks_value, members, id_task):
     d_task = Tasks_Projects.objects.filter(id=id_task).values()    
 
 
@@ -196,12 +203,12 @@ def details_task(request, accounts_users, id, title, info_project, tasks_value, 
                 {'id': id, 'title': title, 'date_now': date_now, 
                 'accounts_users': accounts_users, 'info_project': info_project,
                 'tasks': tasks_value, 'days_between_date': days_between_date,
-                'd_task': d_task
+                'd_task': d_task, 'members': members
     })
 
 
 @checkMember_project
-def team(request, accounts_users, id, info_project, tasks_value, title):
+def team(request, accounts_users, id, info_project, tasks_value, members, title):
     members = MembersProject.objects.filter(id_project=id).values()
     form = addMember(request.POST)
 
@@ -231,14 +238,37 @@ def team(request, accounts_users, id, info_project, tasks_value, title):
     })
 
 
-#TODO: read and write chat, only members project, more options
-#FIXME: HTML - reverse
 @checkMember_project
-def chat_team(request, accounts_users, id, info_project, tasks_value, title, room_name):
+def chat_team(request, accounts_users, id, info_project, tasks_value, members, title, room_name):
+    response = redirect(f'./{id}')
+    
     user_login = request.session.get('user-login')
     messages = MessagesChatTeam.objects.filter(chat_id=id).values()
 
+    # btn del msg
+    if 'id_msg_click_del' in request.GET:
+        id_msg_click = request.GET.get('id_msg_click_del')
+        msg_del = MessagesChatTeam.objects.get(id=id_msg_click)
+        msg_del.delete()
+
+        return response
+
+    # btn edit msg
+    if 'editMsgInput' in request.GET:
+        id_msg_click_edit = request.GET.get('id_msg_click_edit')
+        msg_edit = MessagesChatTeam.objects.get(id=id_msg_click_edit)
+
+        editMsgInput = request.GET.get('editMsgInput')
+        
+        if msg_edit:
+            msg_edit.message = editMsgInput
+            msg_edit.save()
+            return response
+
+
     return render(request, 'chat_team.html', {
+        'accounts_users': accounts_users,
         "room_name": room_name, 'user_login': user_login,
-        'messages': messages
+        'messages': messages, 'info_project': info_project, 'title': title,
+        'members': members
     })

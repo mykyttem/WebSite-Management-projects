@@ -5,10 +5,11 @@ class CreateProjects(forms.ModelForm):
     class Meta:
    
         model = Projects
-        fields = ['title', 'deadline', 'access']
+        fields = ['title', 'logo', 'deadline', 'access']
 
         labels = {
             'title': "Назва проекту",
+            'logo': 'Оберіть лого проекту',
             'access': 'Хто має доступ керування проектом',
             'deadline': 'Крайний термін'
         }

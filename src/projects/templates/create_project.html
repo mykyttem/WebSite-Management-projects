@@ -3,7 +3,7 @@
 {% block title %} Створити проект {% endblock %}
 
 {% block right_block %}
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
     {% csrf_token %}  
 
     {% for msg in messages %}

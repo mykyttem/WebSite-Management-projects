@@ -3,6 +3,7 @@ from django.db import models
 
 class Projects(models.Model):
     title = models.CharField(max_length=255)
+    logo = models.ImageField(null=True, blank=True, upload_to='logo_projects/', default='logo_projects/default_logo_projects.jpg')
     status = models.CharField(max_length=255, default='В розробці')
     deadline = models.DateTimeField()
 

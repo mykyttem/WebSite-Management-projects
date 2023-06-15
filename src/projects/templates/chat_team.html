@@ -9,16 +9,58 @@
 {% endblock %}
 
 {% block body %} 
+<style>
+  .modal-btn-msg {
+    display: none; 
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5); 
+  }
+  
+  .modal-content-btn-msg {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 50px;
+    border: 1px solid #888;
+    width: 40%;
+  }
+  
+  .closeBtMsg {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .closeBtMsg:hover,
+  .closeBtMsg:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }  
+</style>
+
 <div class="container">
 	<div class="row no-gutters">
 	  <div class="col-md-4 border-right">
+    
+    <!-- Info for user -->
 		<div class="settings-tray">
-		  <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/filip.jpg" alt="Profile img">
-          <h3>{{user_login}}</h3>
+      {% for user in accounts_users %}
+		  <img src="/media/{{ user.avatar }}" width="70px" height="70px" alt="user logo">
+          <h3>{{user.login}}</h3>
+      {% endfor %}
 		</div>
+
+    <!-- Left panel, list chats -->
 		<div class="search-box">
 		  <div class="input-wrapper">
-			<i class="material-icons">Пошук</i>
+        <i class="bi bi-search"></i>
 			<input placeholder="Ведіть назву чату, або логін учасника" type="text">
 		  </div>
 		</div>
@@ -32,48 +74,66 @@
 		  <span class="time text-muted small">13:21</span>
 		</div>
 	  </div>
-      
+    
+    
 	  <div class="col-md-8">
 		<div class="settings-tray">
 			<div class="friend-drawer no-gutters friend-drawer--grey">
-			<img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/robocop.jpg" alt="">
+        {% for p in info_project %}
+          <img src="/media/{{ p.logo }}" width="100px" height="100px" alt="project logo">
+        {% endfor %}
 			<div class="text">
-			  <h6>Robo Cop</h6>
-			  <p class="text-muted">Layin' down the law since like before Christ...</p>
+			  <h6>Чат проекта "{{ title }}"</h6>
+			  <p class="text-muted">Учасників {{members|length}}</p>
 			</div>
 		  </div>
 		</div>
-		<div class="chat-panel" id="chat-log">
-        
-          {% for msg in messages %}
-            {% if msg.login_author != user_login %}
-                <div class="row no-gutters">
-                    <div class="col-md-3">    
-                        <div class="chat-bubble chat-bubble--left">
-                            <p>{{msg.message}}</p>
+
+    <!-- Messages -->
+		<div class="chat-panel" style="overflow:scroll; max-height: 650px;" id="chat-log">
+      <div style="display:flex; flex-direction:column-reverse">
+          {% if not messages %}
+            <h1>Пусто</h1>
+            <br><br><br><br><br><br>
+          {% else %}
+              {% for msg in messages %}
+                {% if msg.login_author != user_login %}
+                    <div class="row no-gutters">
+                        <div class="col-md-3">    
+                            <div class="chat-bubble chat-bubble--left">
+                                <p>{{msg.login_author}}</p>
+                                <hr>
+                                <p>{{msg.message}}</p>
+                                <span>{{msg.time_message}}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% else %}
-                <div class="row no-gutters">
-                    <div class="col-md-3 offset-md-9">
-                        <div class="chat-bubble chat-bubble--right">
-                            <p>{{msg.message}}</p>
+                {% else %}
+                    <div class="row no-gutters">
+                        <div class="col-md-3 offset-md-9">
+                            <div class="chat-bubble chat-bubble--right">
+                                <i id="msg_button" style="cursor:pointer; float:right;" onclick="msg_button('{{msg.id}}')" class="bi bi-grid-3x3-gap-fill"></i>
+                                <p>{{msg.login_author}}</p>
+                                <hr>
+                                <p>{{msg.message}}</p>
+                                <p>{{msg.time_message}}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endif %}
-          {% endfor %}
+                {% endif %}
+            {% endfor %}
+          {% endif %}
+      </div>
+      
+      <!-- input msg -->
 		  <div class="row">
 			<div class="col-12">
 			  <div class="chat-box-tray">
                 <i class="bi bi-emoji-laughing-fill"></i>
 				<input id="chat-message-input" type="text" size="100" placeholder="Ведіть ваше повідомлення..."><br>
-               
                 <i class="bi bi-cursor-fill">
                     <input id="chat-message-submit" type="button">
                 </i>
-
 			  </div>
 			</div>
 		  </div>
@@ -82,67 +142,33 @@
 	</div>
   </div>
 
+<!-- Modal btn msg -->
+<div id="modal-btn-msg" class="modal-btn-msg">
+  <div class="modal-content-btn-msg">
+    <span class="closeBtMsg">&times;</span>
+    
+    <form method="GET">
+      <input type="text" name="id_msg_click_del" id="id_msg_click" type="hidden">
+      <button>Видалити повідомлення</button>
+    </form>
+    <br>
+    <hr>
+
+    <br>
+    
+    <form method="GET"> 
+      <input type="text" name="id_msg_click_edit" id="id_msg_click_edit" type="hidden">
+      <input type="text" name="editMsgInput" id="editMsgInput" style="background-color: rgba(234, 231, 236, 0.93); border: 2px solid rgb(0, 0, 0); padding: 5px;">
+      <br><br>
+      <button>Редагувати</button>
+
+    </form>
+
+  </div>
+</div>
 
 {{ room_name|json_script:"room-name" }}
-<script>
-    const roomName = JSON.parse(document.getElementById('room-name').textContent);
-
-    // url
-    const chatSocket = new WebSocket(
-        'ws://'
-        + window.location.host
-        + '/ws/chat/'
-        + roomName
-        + '/'
-    );
-
-    // send message
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const login_user = data.login_user; 
-        const login_session = "{{ user_login }}";
-    
-        var col_md_3 = document.createElement('div');
-        var msg = document.createElement('div');
-    
-        tagP = document.createElement('h4');
-    
-        if (login_user !== login_session) {
-            col_md_3.className = 'col-md-3';
-            msg.className = 'chat-bubble chat-bubble--left';
-        } else {
-            col_md_3.className = 'col-md-3 offset-md-9';
-            msg.className = 'chat-bubble chat-bubble--right';
-        }
-    
-        tagP.textContent = data.message;
-        msg.appendChild(tagP);
-        col_md_3.appendChild(msg);
-        document.querySelector('#chat-log .row.no-gutters').appendChild(col_md_3);
-    };
-    
-
-    chatSocket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
-    };
-
-    document.querySelector('#chat-message-input').focus();
-    document.querySelector('#chat-message-input').onkeyup = function(e) {
-        if (e.keyCode === 13) {  // enter, return
-            document.querySelector('#chat-message-submit').click();
-        }
-    };
-
-    document.querySelector('#chat-message-submit').onclick = function(e) {
-        const messageInputDom = document.querySelector('#chat-message-input');
-        const message = messageInputDom.value;
-
-        chatSocket.send(JSON.stringify({
-            'message': message
-        }));
-
-        messageInputDom.value = '';
-    };
-</script>
+<script>const login_session = "{{ user_login }}";</script>
+<script src="{% static 'js/chat_team.js'%}"></script>
 
 {% endblock %}
