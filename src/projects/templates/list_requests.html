@@ -1,0 +1,41 @@
+{% extends 'project.html' %}
+
+{% block title %} Запити до приєднання {{ title }} {% endblock %}
+
+{% block down_block %}
+
+
+<br>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Логін користувача</th>
+            
+            {% for p in info_project %}
+                {% for user in accounts_users %}
+                    {% if user.login == p.author or user.login in p.access.split %}
+                        <th scope="col">Дії</th>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody> 
+
+        <br><br>
+        {% for request in requests_join %}
+        <tr>
+            <th scope="row">{{request.id}}</th>
+            <td>{{request.login_user}}</td>
+
+            <form method="GET">
+                <input type="hidden" name="request-id-add" value="{{ request.id }}">
+                <td><button class="badge badge-pill badge-success">Добавити</span></button>
+            </form>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'profile.html' %}
+
+{% block title %} Проекти {% endblock %}
+
+{% block right_block %}
+<style>
+    .project {
+        width: 800px;
+        height: 250px;
+        background-color: #fff;
+        border: 2px solid #333333;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      
+</style>
+
+{% for p in project_user %}
+<div class="project" style="position:relative" onclick="window.location.href='/project/{{ p.id }}/{{ p.title }}'">
+    <img src="/media/{{ p.logo }}" width="100px" height="100px" alt="project logo">
+    <hr>
+    <h2 style="text-align: right; position:absolute; right:0">{{p.status}}</h2>
+    <h2>{{p.title}}</h2>
+    <span>Учасників {{members_projects|length}}</span>
+</div>
+<br>
+{% endfor %}
+
+{% endblock %}

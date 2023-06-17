@@ -1,97 +1,27 @@
 from django.shortcuts import render, redirect
-from django.db.models import Q
 
-from datetime import datetime
+from datetime import datetime   
 
-from .models import Projects, MembersProject, Tasks_Projects, MessagesChatTeam
-from .forms import CreateProjects, SettingsProject, TaskProjects, addMember
+from .models import Projects, MembersProject, Tasks_Projects, MessagesChatTeam, RequestJoinProject
+from .forms import SettingsProject, TaskProjects, addMember
+from .main_funcs import checkMember_project
+
 from accounts.views import auth_user
 
 
-# decorator checking user members in project ot author
-def checkMember_project(f):
-    """
-    Using decorator "auth_user", get accounts users
-    Checking member in project or author
-    When we use the "checkingUser_project" decorator, 
-    we simultaneously check the user's authorization and participation in the project,
-    whether he is the author of the project
-    """
-
-    @auth_user
-    def checkingUser_project(request, accounts_users, id, *args, **kwargs):
- 
-        # info for project
-        info_project = Projects.objects.filter(id=id).values()
-        tasks_value = Tasks_Projects.objects.filter(id_project=id).values()
-        members = MembersProject.objects.filter(id_project=id).values()
-
-        # checking user in project members
-        for user in accounts_users:
-            login_user = user['login']
-
-            # checking if author project
-            if not Projects.objects.filter(id=id, author=login_user).values():
-                
-                # checking if user member for project
-                members_project = MembersProject.objects.filter(login_member=login_user).exists()
-
-                if not members_project:
-                    return redirect(f'/my-profile/{login_user}')
-                
-
-            return f(request, accounts_users, id, info_project, tasks_value, members, *args, **kwargs)
-    return checkingUser_project
-        
-
 date_now = datetime.now()
 days_between_date = None
-
-#FIXME URLS For login
-#FIXME: save my logo
-@auth_user
-def create_project(request, accounts_users, login):
-    form = CreateProjects(request.POST)
-  
-    if request.method == 'POST':
-        if form.is_valid():
-            # get input user
-            input_fields = form.cleaned_data
-            i_title = input_fields['title']
-
-            # save
-            project = form.save(commit=False)
-            project.author = login
-            project.invite_url = f"/invite-member/project-{i_title}/author-project-{login}"
-
-            form.save()
-
-        return redirect('./projects')
-
-    return render(request, 'create_project.html', {'form': form}) 
-
-
-#FIXME URLS For login
-@auth_user
-def projects(request, accounts_users, login):
-    """ Geting projects, member in projects or author project """
-
-    members_projects = MembersProject.objects.filter(login_member=login).values('id_project')
-    project_user = Projects.objects.filter(Q(author=login) or Q(id__contains=members_projects)).values()
-
-    return render(request, 'projects.html', {'project_user': project_user, 'members_projects': members_projects}) 
 
 
 @checkMember_project
 def project(request, accounts_users, id, info_project, tasks_value, members, title):
     global days_between_date
 
-
     if not info_project:
         return render(request, 'not_found.html')
+    
 
-
-    for i in info_project:
+    for i in info_project:  
         deadline = i['deadline'].replace(tzinfo=None)
         days_between_date = date_now - deadline
         days_between_date = abs(days_between_date.days)
@@ -100,25 +30,56 @@ def project(request, accounts_users, id, info_project, tasks_value, members, tit
     return render(request, 'project.html', 
                 {'accounts_users': accounts_users, 'tasks': tasks_value,
                 'title': title, 'id': id, 'info_project': info_project, 
-                'date_now': date_now, 'days_between_date': days_between_date,
-                'members': members
+                'date_now': date_now, 'days_between_date': days_between_date
     })
 
 
 @auth_user
-def inviteURL_member(request, accounts_users, title, author):
-    project = Projects.objects.filter(title=title, author=author).values()
+def inviteURL_member(request, accounts_users, title, members, author):
+    project = Projects.objects.filter(title=title, author=author).first()
 
-    for p in project:
-        url_project = redirect (f"/project/{p['id']}/{title}")
+    if project: 
+        url_project = redirect (f"/project/{project.id}/{title}")
 
         # add member in list members for project
         for user in accounts_users:
-           save_member = MembersProject(id_project=p['id'], login_member=user['login'], type=None, id_task=None)
+           save_member = MembersProject(project=project, login_member=user['login'], type=None, id_task=None)
            save_member.save()
 
-           return url_project
+        return url_project
         
+
+@checkMember_project
+def request_join(request, accounts_users, id, info_project, tasks_value, members, title):
+    requests_join = RequestJoinProject.objects.filter(project_id=id).values()
+
+    if 'request-id-add' in request.GET:
+        request_id = request.GET.get('request-id-add')
+        request_user = RequestJoinProject.objects.filter(id=request_id).first()
+        
+        if request_user:
+            login_user = request_user.login_user
+
+            # add member for project
+            project = Projects.objects.filter(id=id).first()
+
+            save_member = MembersProject(project=project, login_member=login_user, type=None, id_task=None)
+            save_member.save()      
+
+            # delete request
+            request_user.delete()
+
+
+        return redirect(f'./list-requests-join')
+
+    return render(request, 'list_requests.html', 
+                {'id': id, 'title': title, 
+                'date_now': date_now, 'accounts_users': accounts_users,
+                'info_project': info_project, 'tasks': tasks_value,
+                'days_between_date': days_between_date,
+                'members': members, 'requests_join': requests_join
+    })
+
 
 @checkMember_project
 def project_settings(request, accounts_users, id, info_project, tasks_value, members, title):
@@ -128,7 +89,7 @@ def project_settings(request, accounts_users, id, info_project, tasks_value, mem
     Update data for project
     """
 
-    # if user not author project or not in list access 
+    # if user not author project or not in list access  
     for user in accounts_users:
         login = user['login']
         for project in info_project:
@@ -153,7 +114,6 @@ def project_settings(request, accounts_users, id, info_project, tasks_value, mem
                     'id': id, 'title': title, 'form': form, 
                     'date_now': date_now, 'info_project': info_project,
                     'tasks': tasks_value, 'days_between_date': days_between_date,
-                    'members': members
                 })
 
 
@@ -182,7 +142,7 @@ def tasks(request, accounts_users, id, info_project, tasks_value, members, title
 
             form.save()
 
-            return redirect(f'/project/{id}/{title}')
+            return redirect(f'./tasks')
 
 
     return render(request, 'tasks.html', 
@@ -190,12 +150,11 @@ def tasks(request, accounts_users, id, info_project, tasks_value, members, title
                 'date_now': date_now, 'accounts_users': accounts_users,
                 'info_project': info_project, 'tasks': tasks_value,
                 'form': form, 'days_between_date': days_between_date,
-                'members': members
     })
 
 
 @checkMember_project
-def details_task(request, accounts_users, id, title, info_project, tasks_value, members, id_task):
+def details_task(request, accounts_users, id, title, info_project, tasks_value, id_task):
     d_task = Tasks_Projects.objects.filter(id=id_task).values()    
 
 
@@ -203,13 +162,12 @@ def details_task(request, accounts_users, id, title, info_project, tasks_value, 
                 {'id': id, 'title': title, 'date_now': date_now, 
                 'accounts_users': accounts_users, 'info_project': info_project,
                 'tasks': tasks_value, 'days_between_date': days_between_date,
-                'd_task': d_task, 'members': members
+                'd_task': d_task
     })
 
 
 @checkMember_project
-def team(request, accounts_users, id, info_project, tasks_value, members, title):
-    members = MembersProject.objects.filter(id_project=id).values()
+def team(request, accounts_users, id, info_project, tasks_value, members, title):    
     form = addMember(request.POST)
 
     # delete member button
@@ -223,18 +181,18 @@ def team(request, accounts_users, id, info_project, tasks_value, members, title)
     if request.method == 'POST':
         if form.is_valid():
             member = form.save(commit=False)
-            member.id_project = id
+            member.id_project = id  
 
             form.save()
 
-            return redirect(f'/project/{id}/{title}')    
+            return redirect(f'./team')    
 
 
     return render(request, 'team.html', 
                 {'id': id, 'title': title, 'date_now': date_now, 
                 'accounts_users': accounts_users, 'info_project': info_project,
-                'members': members, 'tasks': tasks_value, 'days_between_date': days_between_date,
-                'form': form
+                'tasks': tasks_value, 'days_between_date': days_between_date,
+                'form': form, 'members': members
     })
 
 
@@ -269,6 +227,5 @@ def chat_team(request, accounts_users, id, info_project, tasks_value, members, t
     return render(request, 'chat_team.html', {
         'accounts_users': accounts_users,
         "room_name": room_name, 'user_login': user_login,
-        'messages': messages, 'info_project': info_project, 'title': title,
-        'members': members
+        'messages': messages, 'info_project': info_project
     })

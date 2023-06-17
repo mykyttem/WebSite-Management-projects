@@ -35,14 +35,10 @@
                         </li>
                     
                         <li class="nav-item">
-                            <a class="nav-link" id="team-1-tab" href="/project/{{ id }}/{{ title }}/team">Команда <span class="badge badge-pill badge-success">{{ members|length }}</span></a>
+                            <a class="nav-link" id="team-1-tab" href="/project/{{ id }}/{{ title }}/team">Команда <span class="badge badge-pill badge-success">{{ p.membersproject_set.all|length }}</span></a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link" id="btn-invite-member" style="position: absolute; right: 0; color:blue; cursor: pointer">Запросити до проекту</a>
-                        </li>    
-              
-                                        
+                        
                         <!-- Modal window invite member -->
                         <div id="modal-invite-member" class="modal-invite-member">
                             <div class="modal-content">
@@ -54,7 +50,15 @@
                                 <button onclick="CopyInviteUrl()">Скопіювати посилання</button>
                             </div>
                         </div>
-                            
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" id="btn-invite-member" style="position: absolute; right: 0; color:blue; cursor: pointer">Запросити до проекту</a>
+                        </li>    
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" style="color:blue; position: absolute; right: 180px; cursor: pointer;" href="/project/{{ id }}/{{ title }}/list-requests-join">Запити на приєднання до проекту</a>
+                        </li>    
+              
                         
                         {% for user in accounts_users %}
                             {% if user.login == p.author or user.login in p.access.split %}

@@ -15,8 +15,13 @@ class Projects(models.Model):
     invite_url = models.TextField()
 
 
+class RequestJoinProject(models.Model):
+    project = models.ForeignKey(Projects, on_delete=models.CASCADE)
+    login_user = models.CharField(max_length=25)
+
+
 class MembersProject(models.Model):
-    id_project = models.IntegerField()
+    project = models.ForeignKey(Projects, on_delete=models.CASCADE)
     login_member = models.CharField(max_length=25)
     type = models.CharField(max_length=25, null=True)
     id_task = models.CharField(max_length=25, null=True)
