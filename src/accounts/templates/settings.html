@@ -3,7 +3,9 @@
 {% block title %} Налаштування {% endblock %}
 
 {% block right_block %}
-<form method="GET" enctype="multipart/form-data">   
+<form method="POST" enctype="multipart/form-data">   
+    {% csrf_token %}
+
     {% for msg in messages %}
         <h2 style="color:crimson">{{msg}}</h2> 
     {% endfor %}

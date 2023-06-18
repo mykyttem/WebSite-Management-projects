@@ -57,6 +57,6 @@ class UpdateAccount(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Змінити ім'я"}),
             'login': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Змінити логін'}),
             'email': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Змінити пошту'}),
-            'avatar': forms.FileInput(attrs={'accept': 'image/', 'class': 'form-control-file'}),
+            'avatar': forms.FileInput(attrs={'type': 'file', 'accept': 'image/', 'class': 'form-control-file'}),
             'password': forms.TextInput(attrs={'type': 'password', 'class': 'form-control-file', 'placeholder': 'Змінити пароль'})
         }

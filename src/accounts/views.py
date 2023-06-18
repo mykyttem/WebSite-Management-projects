@@ -17,14 +17,13 @@ def auth_user(f):
     return wrapper
 
 
-#FIXME: don't save photo user   
 def sign_up(request):
     """
     Get data for fields
     Hashing password
     Save and redirect for page sign in
     """
-    form = AccountsForm_SignUp(request.POST)
+    form = AccountsForm_SignUp(request.POST, request.FILES)
 
     if request.method == "POST":
         if form.is_valid():
@@ -84,7 +83,7 @@ def sign_in(request):
 
 
 @auth_user
-def my_profile(request, user_account, login):
+def my_profile(request, user_account):
     if 'logout' in request.POST:
         # get hidden element
         request.session.flush()
@@ -93,28 +92,30 @@ def my_profile(request, user_account, login):
     return render(request, 'profile.html')
 
 
-#FIXME: don't save photo user
 @auth_user
-def settings(request, user_account, login):
-    if request.method == "GET":
-        id_user = request.session.get('user-id')
-        form = UpdateAccount(request.GET)
+def settings(request, user_account):
+    login = request.session.get('user-login')
+    form = UpdateAccount(request.POST, request.FILES)
 
+    if request.method == "POST":
 
         if form.is_valid():
-            update_account = Accounts.objects.get(id=id_user)
+            update_account = Accounts.objects.get(login=login)
             if update_account:
 
                 # get input user
                 name = form.cleaned_data['name']
                 i_login = form.cleaned_data['login']
                 email = form.cleaned_data['email']
+                new_avatar = form.cleaned_data['avatar']
                 new_password = form.cleaned_data['password']
 
                 # update data
                 update_account.name = name
                 update_account.login = i_login
                 update_account.email = email
+                update_account.avatar = new_avatar
+
                 update_account.password = make_password(new_password)
 
                 update_account.save()

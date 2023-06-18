@@ -66,11 +66,10 @@ def checkMember_project(f):
     return checkingUser_project
 
 
-#FIXME URLS For login
-#FIXME: save my logo
 @auth_user
-def create_project(request, accounts_users, login):
-    form = CreateProjects(request.POST)
+def create_project(request, accounts_users):
+    login = request.session.get('user-login')
+    form = CreateProjects(request.POST, request.FILES)
   
     if request.method == 'POST':
         if form.is_valid():
@@ -90,10 +89,10 @@ def create_project(request, accounts_users, login):
     return render(request, 'create_project.html', {'form': form}) 
 
 
-#FIXME URLS For login
 @auth_user
-def my_projects(request, accounts_users, login):
+def my_projects(request, accounts_users):
     """ Geting projects, member in projects or author project """
+    login = request.session.get('user-login')
 
     members_projects = MembersProject.objects.filter(login_member=login).values('project_id')
     project_user = Projects.objects.filter(Q(author=login) or Q(id__contains=members_projects)).values()

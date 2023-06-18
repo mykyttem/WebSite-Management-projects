@@ -10,8 +10,8 @@ urlpatterns = [
     path('', main_funcs.main_page, name='main-page'),
 
     # profile
-    path('my-profile/<str:login>/create-project', main_funcs.create_project, name='create_project'),
-    path('my-profile/<str:login>/projects', main_funcs.my_projects, name='projects'),
+    path('my-profile/create-project', main_funcs.create_project, name='create_project'),
+    path('my-profile/projects', main_funcs.my_projects, name='projects'),
     
     # info for project
     path('project/<int:id>/<str:title>', views.project, name='project'),
